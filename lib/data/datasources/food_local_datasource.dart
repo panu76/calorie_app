@@ -3,7 +3,9 @@ import 'package:sqflite/sqflite.dart';
 
 import '../models/food_item.dart';
 
-class FoodLocalDataSource {
+import '../repositories/food_repository.dart';
+
+class FoodLocalDataSource implements FoodStorage {
   static const _dbName = 'food_log.db';
   static const _table = 'meals';
 
@@ -36,7 +38,11 @@ class FoodLocalDataSource {
 
   Future<List<FoodItem>> getDailyMeals(DateTime date) async {
     final db = await _database;
-    final start = DateTime(date.year, date.month, date.day).millisecondsSinceEpoch;
+    final start = DateTime(
+      date.year,
+      date.month,
+      date.day,
+    ).millisecondsSinceEpoch;
     final end = start + const Duration(days: 1).inMilliseconds;
 
     final maps = await db.query(
@@ -47,45 +53,37 @@ class FoodLocalDataSource {
     );
 
     return maps
-        .map((e) => FoodItem.fromJson({
-              ...e,
-              'timestamp': DateTime.fromMillisecondsSinceEpoch(e['timestamp'] as int).toIso8601String(),
-            }))
+        .map(
+          (e) => FoodItem.fromJson({
+            ...e,
+            'timestamp': DateTime.fromMillisecondsSinceEpoch(
+              e['timestamp'] as int,
+            ).toIso8601String(),
+          }),
+        )
         .toList();
   }
 
   Future<void> insertMeal(FoodItem item) async {
     final db = await _database;
-    await db.insert(
-      _table,
-      {
-        ...item.toJson(),
-        'timestamp': item.timestamp.millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert(_table, {
+      ...item.toJson(),
+      'timestamp': item.timestamp.millisecondsSinceEpoch,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<void> deleteMeal(FoodItem item) async {
     final db = await _database;
-    await db.delete(
-      _table,
-      where: 'id = ?',
-      whereArgs: [item.id],
-    );
+    await db.delete(_table, where: 'id = ?', whereArgs: [item.id]);
   }
 
   Future<void> updateMeal(FoodItem item) async {
     final db = await _database;
     await db.update(
       _table,
-      {
-        ...item.toJson(),
-        'timestamp': item.timestamp.millisecondsSinceEpoch,
-      },
+      {...item.toJson(), 'timestamp': item.timestamp.millisecondsSinceEpoch},
       where: 'id = ?',
       whereArgs: [item.id],
     );
   }
 }
-

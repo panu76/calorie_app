@@ -29,11 +29,6 @@ Future<void> initDependencies() async {
 
   // Repositories
   sl.registerLazySingleton<FoodRepository>(
-    () => FoodRepository(
-      sl<FoodService>(),
-      sl<FoodLocalDataSource>(),
-      sl<FoodRemoteDataSource>(),
-    ),
+    () => FoodRepository(sl<FoodService>(), sl<FoodRemoteDataSource>()),
   );
 }
-

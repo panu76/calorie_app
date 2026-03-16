@@ -1,3 +1,4 @@
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:typed_data';
@@ -5,11 +6,13 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:auto_route/auto_route.dart';
+import '../../core/router/app_router.dart';
 import '../cubit/food_log_cubit.dart';
 import '../widgets/daily_tracker.dart';
 import '../widgets/meal_list.dart';
 import '../widgets/alert_message_widget.dart';
 
+@RoutePage()
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -99,7 +102,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = context.select((FoodLogCubit cubit) => cubit.state.isLoading);
+    final isLoading = context.select(
+      (FoodLogCubit cubit) => cubit.state.isLoading,
+    );
     final isBusy = isLoading || _isScanning;
 
     return Scaffold(
@@ -110,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              context.router.push(const AddMealFormRoute());
+              context.router.push(AddMealFormRoute());
             },
           ),
         ],
@@ -122,56 +127,66 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Today's trackers", style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  "Today's trackers",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 SizedBox(height: 16),
                 BlocBuilder<FoodLogCubit, FoodLogState>(
-                builder: (context, state) {
-                  if (state.isLoading) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  return Column(
-                    children: [
-                      // Tracker Section
-                      DailyTracker(
-                        calories: state.totalCalories,
-                        protein: state.totalProtein,
-                        carbs: state.totalCarbs,
-                        fat: state.totalFat,
-                      ),
-                      SizedBox(height: 24),
-
-                      // Preview selected image (web/mobile)
-                      if (_imageBytes != null) ...[
-                        Text('Selected Image', style: Theme.of(context).textTheme.titleMedium),
-                        SizedBox(height: 8),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.memory(
-                            _imageBytes!,
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
+                  builder: (context, state) {
+                    if (state.isLoading) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    return Column(
+                      children: [
+                        // Tracker Section
+                        DailyTracker(
+                          calories: state.totalCalories,
+                          protein: state.totalProtein,
+                          carbs: state.totalCarbs,
+                          fat: state.totalFat,
                         ),
                         SizedBox(height: 24),
-                      ],
 
-                      // Inline Alert Section for Success or Error
-                      if (state.successMessage != null || state.error != null)
+                        // Preview selected image (web/mobile)
+                        if (_imageBytes != null) ...[
+                          Text(
+                            'Selected Image',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          SizedBox(height: 8),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.memory(
+                              _imageBytes!,
+                              height: 200,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          SizedBox(height: 24),
+                        ],
+
+                        // Inline Alert Section for Success or Error
+                        if (state.successMessage != null || state.error != null)
                           AlertMessageWidget(
                             errorMessage: state.error,
                             successMessage: state.successMessage,
-                            onClose: () => context.read<FoodLogCubit>().clearMessages(),
+                            onClose: () =>
+                                context.read<FoodLogCubit>().clearMessages(),
                           ),
 
-                      // Meals Section
-                      Text('Meals', style: Theme.of(context).textTheme.titleMedium),
-                      SizedBox(height: 16),
-                      MealList(meals: state.meals),
-                    ],
-                  );
-                },
-              ),
+                        // Meals Section
+                        Text(
+                          'Meals',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        SizedBox(height: 16),
+                        MealList(meals: state.meals),
+                      ],
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -179,7 +194,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: isBusy ? null : () => showImageSourceActionSheet(context),
-        child: isBusy ? const CircularProgressIndicator(color: Colors.white) : const Icon(Icons.add_a_photo),
+        child: isBusy
+            ? const CircularProgressIndicator(color: Colors.white)
+            : const Icon(Icons.add_a_photo),
       ),
     );
   }

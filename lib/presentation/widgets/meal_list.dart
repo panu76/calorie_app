@@ -5,14 +5,12 @@ import '../../data/models/food_item.dart';
 import '../cubit/food_log_cubit.dart';
 import 'meal_list_item.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import '../../core/router/app_router.dart';
 
 class MealList extends StatelessWidget {
   final List<FoodItem> meals;
 
-  const MealList({
-    required this.meals,
-    super.key,
-  });
+  const MealList({required this.meals, super.key});
 
   @override
   Widget build(BuildContext context) {

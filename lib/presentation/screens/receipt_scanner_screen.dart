@@ -1,9 +1,11 @@
+import 'package:auto_route/annotations.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 
+@RoutePage()
 class ReceiptScannerScreen extends StatefulWidget {
   const ReceiptScannerScreen({super.key});
 
@@ -45,9 +47,7 @@ class _ReceiptScannerScreenState extends State<ReceiptScannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Scan Receipt (ML Kit)'),
-      ),
+      appBar: AppBar(title: const Text('Scan Receipt (ML Kit)')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -62,11 +62,7 @@ class _ReceiptScannerScreenState extends State<ReceiptScannerScreen> {
             if (_isProcessing)
               const Center(child: CircularProgressIndicator())
             else if (_scannedText != null)
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Text(_scannedText!),
-                ),
-              )
+              Expanded(child: SingleChildScrollView(child: Text(_scannedText!)))
             else
               const Text('No text scanned yet.'),
           ],
@@ -75,4 +71,3 @@ class _ReceiptScannerScreenState extends State<ReceiptScannerScreen> {
     );
   }
 }
-

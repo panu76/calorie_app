@@ -1,9 +1,11 @@
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/models/food_item.dart';
 import '../cubit/food_log_cubit.dart';
 
+@RoutePage()
 class AddMealFormScreen extends StatefulWidget {
   const AddMealFormScreen({super.key});
 
@@ -46,9 +48,7 @@ class _AddMealFormScreenState extends State<AddMealFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Meal Manually'),
-      ),
+      appBar: AppBar(title: const Text('Add Meal Manually')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -57,9 +57,7 @@ class _AddMealFormScreenState extends State<AddMealFormScreen> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Food name',
-                ),
+                decoration: const InputDecoration(labelText: 'Food name'),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please enter a food name';
@@ -71,9 +69,7 @@ class _AddMealFormScreenState extends State<AddMealFormScreen> {
               TextFormField(
                 controller: _caloriesController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Calories (kcal)',
-                ),
+                decoration: const InputDecoration(labelText: 'Calories (kcal)'),
                 validator: (value) {
                   final v = double.tryParse(value ?? '');
                   if (v == null || v <= 0) {
@@ -97,4 +93,3 @@ class _AddMealFormScreenState extends State<AddMealFormScreen> {
     );
   }
 }
-

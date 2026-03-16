@@ -1,8 +1,10 @@
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'graph_screen.dart';
 import 'settings_screen.dart';
 
+@RoutePage()
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -12,12 +14,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
-  final List<Widget> _screens = [
-    HomeScreen(),
-    GraphScreen(),
-    SettingsScreen(),
-
-  ];
+  final List<Widget> _screens = [HomeScreen(), GraphScreen(), SettingsScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +28,7 @@ class _MainScreenState extends State<MainScreen> {
           });
         },
         items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
             label: 'Progress',

@@ -1,9 +1,13 @@
+import '../../core/router/app_router.dart';
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/utils/calorie_calculator.dart';
 import '../../data/local/preference_manager.dart';
 import '../../data/models/user_data.dart';
 
+@RoutePage()
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -29,7 +33,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     'Light': '1-3 days/week of exercise',
     'Moderate': '3-5 days/week of moderate activity',
     'Active': '6-7 days/week of exercise',
-    'Very Active': 'Very intense exercise/sports & physical job'
+    'Very Active': 'Very intense exercise/sports & physical job',
   };
 
   Future<void> _savePreferences() async {
@@ -68,7 +72,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       carbsGoal: macroGoals['carbsGoal']!,
     );
 
-    final prefManager = PreferenceManager(await SharedPreferences.getInstance());
+    final prefManager = PreferenceManager(
+      await SharedPreferences.getInstance(),
+    );
     await prefManager.saveUserData(userData);
   }
 
@@ -87,38 +93,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _skipToMain() {
-    Navigator.pushReplacementNamed(context, '/main');
+    context.router.replace(MainRoute());
   }
 
-  Widget _buildPage(String title, String assetPath, Widget inputField) {
+  Widget _buildPage(String title, Widget inputField, [String? assetPath]) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            flex: 7,
-            child: Image.asset(
-              assetPath,
-              fit: BoxFit.cover,
-              width: double.infinity,
-            ),
-          ),
-          SizedBox(height: 16),
-          Expanded(
-            flex: 3,
-            child: Column(
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium,
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 24),
-                inputField,
-              ],
-            ),
-          ),
+          SizedBox(height: 32),
+          Text(title, style: Theme.of(context).textTheme.headlineSmall),
+          SizedBox(height: 24),
+          inputField,
         ],
       ),
     );
@@ -131,19 +118,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           value: activityLevel,
           isExpanded: true,
           items: activityLevelDescriptions.entries
-              .map((entry) => DropdownMenuItem(
-                    value: entry.key,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(entry.key, style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text(
-                          entry.value,
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                  ))
+              .map(
+                (entry) => DropdownMenuItem(
+                  value: entry.key,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        entry.key,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        entry.value,
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+              )
               .toList(),
           onChanged: (value) => setState(() => activityLevel = value),
           hint: Text('Select Activity Level'),
@@ -155,16 +147,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false, // Prevents keyboard from pushing up content
-      appBar: _currentPage == 0 ? AppBar(
-        automaticallyImplyLeading: false,
-        actions: [
-          TextButton(
-            onPressed: _skipToMain,
-            child: Text('Skip'),
-          ),
-        ],
-      ) : null,
+      resizeToAvoidBottomInset:
+          false, // Prevents keyboard from pushing up content
+      appBar: _currentPage == 0
+          ? AppBar(
+              automaticallyImplyLeading: false,
+              actions: [
+                TextButton(onPressed: _skipToMain, child: Text('Skip')),
+              ],
+            )
+          : null,
       body: PageView(
         controller: _pageController,
         physics: NeverScrollableScrollPhysics(),
@@ -172,7 +164,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         children: [
           _buildPage(
             'Enter Your Weight',
-            'assets/onboarding/onboarding_weight.png',
             TextField(
               keyboardType: TextInputType.number,
               onChanged: (value) => weight = double.tryParse(value),
@@ -181,7 +172,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           _buildPage(
             'Enter Your Height',
-            'assets/onboarding/onboarding_height.png',
             TextField(
               keyboardType: TextInputType.number,
               onChanged: (value) => height = double.tryParse(value),
@@ -190,7 +180,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           _buildPage(
             'Enter Your Age',
-            'assets/onboarding/onboarding_age.png',
             TextField(
               keyboardType: TextInputType.number,
               onChanged: (value) => age = int.tryParse(value),
@@ -199,30 +188,31 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           _buildPage(
             'Select Your Activity Level',
-            'assets/onboarding/onboarding_activity_level.png',
             _buildActivityLevelDropdown(),
           ),
           _buildPage(
             'Select Your Gender',
-            'assets/onboarding/onboarding_gender.png',
             DropdownButton<String>(
               value: gender,
               isExpanded: true,
-              items: ['Male', 'Female', 'Other']
-                  .map((g) => DropdownMenuItem(value: g, child: Text(g)))
-                  .toList(),
+              items: [
+                'Male',
+                'Female',
+                'Other',
+              ].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
               onChanged: (value) => setState(() => gender = value),
               hint: Text('Select Your Gender'),
             ),
           ),
           _buildPage(
             'What is your goal?',
-            'assets/onboarding/onboarding_goal.png',
             DropdownButton<String>(
               value: userGoal,
               isExpanded: true,
               items: ['Weight Loss', 'Maintenance', 'Muscle Gain']
-                  .map((goal) => DropdownMenuItem(value: goal, child: Text(goal)))
+                  .map(
+                    (goal) => DropdownMenuItem(value: goal, child: Text(goal)),
+                  )
                   .toList(),
               onChanged: (value) => setState(() => userGoal = value),
               hint: Text('Select Your Goal'),
@@ -246,12 +236,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 height: 48,
                 width: 120,
                 child: TextButton(
-                  onPressed: _currentPage > 0 
-                    ? () => _pageController.previousPage(
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      )
-                    : null,
+                  onPressed: _currentPage > 0
+                      ? () => _pageController.previousPage(
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        )
+                      : null,
                   child: Text(
                     _currentPage > 0 ? 'Back' : '',
                     style: TextStyle(fontSize: 16),
